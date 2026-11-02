@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 A 초안 - 티어리스트</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+            --accent-color: #bb86fc;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Pretendard', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin-bottom: 20px; color: var(--accent-color); }
+
+        .input-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            width: 250px;
+        }
+
+        button {
+            background: var(--accent-color);
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover { opacity: 0.8; }
+
+        .tier-container {
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .tier-row {
+            display: flex;
+            min-height: 90px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tier-row:last-child { border-bottom: none; }
+
+        .tier-label {
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .s-tier { background-color: #ff7f7f; }
+        .a-tier { background-color: #ffbf7f; }
+        .b-tier { background-color: #ffff7f; }
+        .c-tier { background-color: #7fff7f; }
+        .d-tier { background-color: #7fbfff; }
+        .f-tier { background-color: #bdbdbd; }
+
+        .tier-content {
+            flex-grow: 1;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background-color: #1a1a1a;
+            min-height: 70px;
+        }
+
+        .movie-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .movie-card:active { cursor: grabbing; }
+
+        .delete-btn {
+            color: #ff4d4d;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 2px 5px;
+        }
+
+        .waiting-room {
+            width: 100%;
+            max-width: 800px;
+            min-height: 120px;
+            background: #1a1a1a;
+            border: 2px dashed var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+
+        .waiting-room-label {
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .share-section {
+            margin-top: 20px;
+        }
+
+        #share-btn {
+            background-color: #03dac6;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎬 영화 A 초안 티어리스트</h1>
+
+    <div class="input-section">
+        <input type="text" id="movie-input" placeholder="영화 제목을 입력하세요..." onkeypress="if(event.keyCode==13) addMovie()">
+        <button onclick="addMovie()">추가</button>
+    </div>
+
+    <div class="tier-container">
+        <div class="tier-row" id="row-S">
+            <div class="tier-label s-tier">S</div>
+            <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="tier-row" id="row-A">
+            <div class="tier-label a-tier">A</div>
+            <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="tier-row" id="row-B">
+            <div class="tier-label b-tier">B</div>
+            <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="tier-row" id="row-C">
+            <div class="tier-label c-tier">C</div>
+            <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="tier-row" id="row-D">
+            <div class="tier-label d-tier">D</div>
+            <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="tier-row" id="row-F">
+            <div class="tier-label f-tier">F</div>
+            <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+    </div>
+
+    <div class="waiting-room" id="waiting-room" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <div class="waiting-room-label">대기함 (여기로 드래그하여 영화를 추가하세요)</div>
+    </div>
+
+    <div class="share-section">
+        <button id="share-btn" onclick="shareUrl()">현재 리스트 URL 복사하기</button>
+    </div>
+
+    <script>
+        function addMovie(title = null, targetId = 'waiting-room') {
+            const input = document.getElementById('movie-input');
+            const movieTitle = title || input.value.trim();
+
+            if (!movieTitle) return;
+
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            card.draggable = true;
+            card.id = 'movie-' + Date.now() + Math.random().toString(36).substr(2, 5);
+            card.innerHTML = `
+                <span>${movieTitle}</span>
+                <span class="delete-btn" onclick="this.parentElement.remove(); updateUrl();">X</span>
+            `;
+
+            card.ondragstart = (e) => {
+                e.dataTransfer.setData("text", e.target.id);
+            };
+
+            let container;
+            if (targetId === 'waiting-room') {
+                container = document.getElementById('waiting-room');
+            } else {
+                container = document.querySelector(`#row-${targetId} .tier-content`);
+            }
+            
+            if (container) {
+                container.appendChild(card);
+            }
+            
+            if (!title) {
+                input.value = '';
+                updateUrl();
+            }
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const data = e.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            
+            let target = e.target;
+            while (target && !target.classList.contains('tier-content') && !target.classList.contains('waiting-room')) {
+                target = target.parentElement;
+            }
+
+            if (target) {
+                target.appendChild(draggedElement);
+                updateUrl();
+            }
+        }
+
+        function updateUrl() {
+            const tiers = ['S', 'A', 'B', 'C', 'D', 'F'];
+            const params = new URLSearchParams();
+
+            tiers.forEach(t => {
+                const movies = Array.from(document.querySelectorAll(`#row-${t} .movie-card span:first-child`))
+                                    .map(span => span.innerText);
+                if (movies.length > 0) params.set(t, movies.join(','));
+            });
+
+            const waiting = Array.from(document.querySelectorAll(`#waiting-room .movie-card span:first-child`))
+                                 .map(span => span.innerText);
+            if (waiting.length > 0) params.set('w', waiting.join(','));
+
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + params.toString();
+            window.history.replaceState({path: newUrl}, '', newUrl);
+        }
+
+        function shareUrl() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("URL이 클립보드에 복사되었습니다! 이 주소로 접속하면 현재 배치를 그대로 볼 수 있습니다.");
+            });
+        }
+
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const tiers = ['S', 'A', 'B', 'C', 'D', 'F'];
+
+            tiers.forEach(t => {
+                const movies = params.get(t);
+                if (movies) {
+                    movies.split(',').forEach(title => addMovie(title, t));
+                }
+            });
+
+            const waiting = params.get('w');
+            if (waiting) {
+                waiting.split(',').forEach(title => addMovie(title, 'waiting-room'));
+            }
+        };
+    </script>
+</body>
+</html>
